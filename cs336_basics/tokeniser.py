@@ -66,34 +66,18 @@ def train_bpe(
         for i in range(len(pretoken) - 1):
             pair = pretoken[i:i+2]
             pair_freq_count[pair] += pretoken_count[pretoken]
-    pair_freq_heap = [PairFreq(pair, freq) for pair, freq in pair_freq_count.items()]
-    heapq.heapify(pair_freq_heap)
 
     # do merges
     merges = []
     for _ in range(vocab_size - len(vocab)):
+
+        # get the most frequent pair
+        top_pair = max(pair_freq_count, key=lambda x: (pair_freq_count[x], x))
         
-        # if there are no merges possible, then end the loop early
-        if len(pair_freq_heap) == 0:
+        # check if there are no more pairs
+        if pair_freq_count[top_pair] == 0:
             break
-
-        # get the next pair to be merged and add merge
-        # use lazy deletion (sync pair_freq_count and pair_freq_heap)
-        # pair_freq_count always has correct values but pair_freq_heap does not
-        top_pair, freq = None, None
-        while len(pair_freq_heap) > 0:
-            top_pair, freq = heapq.heappop(pair_freq_heap)
-
-            # check if the top heap element is still valid according to pair_freq_count
-            if freq == pair_freq_count[top_pair]:
-                break
-            else:
-                top_pair, freq = None, None
         
-        # no merges possible
-        if top_pair is None:
-            break
-
         # update vocab and merges
         merges.append(top_pair)
         new_token = top_pair[0] + top_pair[1]
@@ -151,10 +135,6 @@ def train_bpe(
                 # update pretoken count
                 pretoken_count[new_pretoken] = pretoken_count[pretoken]
                 del pretoken_count[pretoken]
-
-                # update modified pairs in heap
-                for pair in modified_pairs:
-                    heapq.heappush(pair_freq_heap, PairFreq(pair, pair_freq_count[pair]))
 
         del pair_freq_count[top_pair]
 

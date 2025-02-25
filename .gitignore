@@ -3,4 +3,6 @@ README.md
 writeup.md
 cs336_basics.egg-info/
 data/
-.conda/
+.*
+**/__pycache__/
+profile_output*
