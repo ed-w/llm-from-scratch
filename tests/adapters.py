@@ -7,7 +7,9 @@ from typing import IO, BinaryIO, Iterable, Optional, Type
 import numpy.typing as npt
 import torch
 
-import cs336_basics.tokeniser
+import cs336_basics.tokeniser as tokeniser
+import cs336_basics.model as model
+import cs336_basics.train_bpe as train_bpe
 
 
 def run_positionwise_feedforward(
@@ -333,7 +335,9 @@ def run_rmsnorm(
         FloatTensor of with the same shape as `in_features` with the output of running
         RMSNorm of the `in_features`.
     """
-    raise NotImplementedError
+    rms_norm = model.RMSNorm(d_model, eps)
+    rms_norm.load_state_dict(weights)
+    return rms_norm(in_features)
 
 
 def run_gelu(in_features: torch.FloatTensor) -> torch.FloatTensor:
@@ -538,7 +542,7 @@ def get_tokenizer(
     Returns:
         A BPE tokenizer that uses the provided vocab, merges, and special tokens.
     """
-    return cs336_basics.tokeniser.Tokeniser(vocab, merges, special_tokens)
+    return tokeniser.Tokeniser(vocab, merges, special_tokens)
 
 
 def run_train_bpe(
@@ -571,4 +575,4 @@ def run_train_bpe(
                 representing that <token1> was merged with <token2>.
                 Merges are ordered by order of creation.
     """
-    return cs336_basics.tokeniser.train_bpe(input_path, vocab_size, special_tokens)
+    return train_bpe.train_bpe(input_path, vocab_size, special_tokens)
