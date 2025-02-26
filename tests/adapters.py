@@ -33,7 +33,7 @@ def run_positionwise_feedforward(
             linear transformation (eq. 2 of Vaswani et al., 2017).
             `w1.weight` is of shape (d_ff, d_model).
             `w2.weight` is of shape (d_model, d_ff).
-    )
+    
         in_features: torch.FloatTensor
             Tensor to run your implementation on.
 
@@ -47,7 +47,9 @@ def run_positionwise_feedforward(
     # You can also manually assign the weights
     # my_ffn.w1.weight.data = weights["w1.weight"]
     # my_ffn.w2.weight.data = weights["w2.weight"]
-    raise NotImplementedError
+    ffn = model.PositionWiseFeedForward(d_model, d_ff)
+    ffn.load_state_dict(weights)
+    return ffn(in_features)
 
 
 def run_scaled_dot_product_attention(
@@ -89,7 +91,7 @@ def run_scaled_dot_product_attention(
         with the output of running your scaled dot product attention
         implementation with the provided key, query, and value tensors.
     """
-    raise NotImplementedError
+    return model.scaled_dot_product_attention(K, Q, V, mask, pdrop)
 
 
 def run_multihead_self_attention(
@@ -139,7 +141,13 @@ def run_multihead_self_attention(
         torch.FloatTensor with the output of running your optimized, batched multi-headed attention
         implementation with the given QKV projection weights and input features.
     """
-    raise NotImplementedError
+    mha = model.CausalMultiHeadSelfAttention(d_model, num_heads, attn_pdrop)
+    with torch.no_grad():
+        mha.q_proj.weight.data = torch.cat([weights[f"q_heads.{i}.weight"] for i in range(num_heads)], dim=0)
+        mha.k_proj.weight.data = torch.cat([weights[f"k_heads.{i}.weight"] for i in range(num_heads)], dim=0)
+        mha.v_proj.weight.data = torch.cat([weights[f"v_heads.{i}.weight"] for i in range(num_heads)], dim=0)
+        mha.output_proj.weight.data = weights["output_proj.weight"]
+    return mha(in_features)
 
 
 def run_transformer_block(
@@ -211,7 +219,9 @@ def run_transformer_block(
         FloatTensor of shape (batch_size, sequence_length, d_model) with the output of
         running the Transformer block on the input features.
     """
-    raise NotImplementedError
+    transformer_block = model.TransformerBlock(d_model, num_heads, d_ff, attn_pdrop, residual_pdrop)
+    transformer_block.load_state_dict(weights)
+    return transformer_block(in_features)
 
 
 def run_transformer_lm(
@@ -304,7 +314,9 @@ def run_transformer_lm(
         FloatTensor of shape (batch size, sequence_length, vocab_size) with the predicted unnormalized
         next-word distribution for each token.
     """
-    raise NotImplementedError
+    transformer_lm = model.TransformerLanguageModel(vocab_size, context_length, d_model, num_layers, num_heads, d_ff, attn_pdrop, residual_pdrop)
+    transformer_lm.load_state_dict(weights)
+    return transformer_lm(in_indices)
 
 
 def run_rmsnorm(
@@ -352,7 +364,7 @@ def run_gelu(in_features: torch.FloatTensor) -> torch.FloatTensor:
         FloatTensor of with the same shape as `in_features` with the output of applying
         GELU to each element.
     """
-    raise NotImplementedError
+    return model.GELU(in_features)
 
 
 def run_get_batch(
@@ -396,7 +408,7 @@ def run_softmax(in_features: torch.FloatTensor, dim: int) -> torch.FloatTensor:
         FloatTensor of with the same shape as `in_features` with the output of
         softmax normalizing the specified `dim`.
     """
-    raise NotImplementedError
+    return model.softmax(in_features, dim)
 
 
 def run_cross_entropy(inputs: torch.FloatTensor, targets: torch.LongTensor):

@@ -147,5 +147,4 @@ def load_bpe(
         }
 
     return vocab, merges
-        
-            
+
