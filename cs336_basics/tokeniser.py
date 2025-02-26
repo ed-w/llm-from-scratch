@@ -333,31 +333,3 @@ class Tokeniser():
         for id in ids:
             text += self.vocab[id]
         return text.decode("utf-8", errors="replace")
-
-
-# TODO: do this in a notebook?
-if __name__ == "__main__":
-    # vocab, merges = train_bpe(
-    #     input_path="data/corpus.en",
-    #     vocab_size=500,
-    #     special_tokens="<|endoftext|>",
-    # )
-    # save_bpe(vocab, merges, "data/corpus-vocab.json", "data/corpus-merges.txt")
-    # print(max(vocab.values(), key=len))
-    
-    vocab, merges = train_bpe(
-        input_path="data/TinyStoriesV2-GPT4-train.txt",
-        vocab_size=10000,
-        special_tokens="<|endoftext|>",
-    )
-    save_bpe(vocab, merges, "data/TinyStoriesV2-GPT4-vocab.json", "data/TinyStoriesV2-GPT4-merges.txt")
-    print(max(vocab.values(), key=len))
-
-    # vocab, merges = train_bpe(
-    #     input_path="data/owt_train.txt",
-    #     vocab_size=32000,
-    #     special_tokens="<|endoftext|>",
-    # )
-    # save_bpe(vocab, merges, "data/owt-vocab.json", "data/owt-merges.txt")
-    # print(max(vocab.values(), key=len).decode("utf-8"))
-    pass
