@@ -14,6 +14,7 @@ import tiktoken
 
 from .adapters import get_tokenizer
 from .common import FIXTURES_PATH, gpt2_bytes_to_unicode
+from cs336_basics.utils import save_bpe, load_bpe
 
 VOCAB_PATH = FIXTURES_PATH / "gpt2_vocab.json"
 MERGES_PATH = FIXTURES_PATH / "gpt2_merges.txt"
@@ -443,3 +444,16 @@ def _encode(tokenizer, text):
     for just this function. We set the memory limit to 1MB.
     """
     return tokenizer.encode(text)
+
+
+def test_save_load():
+    tokeniser = get_tokenizer_from_vocab_merges_path(
+        vocab_path=VOCAB_PATH,
+        merges_path=MERGES_PATH,
+    )
+    save_bpe(tokeniser.vocab, tokeniser.merges, "temp_vocab.json", "temp_merges.txt")
+    vocab, merges = load_bpe("temp_vocab.json", "temp_merges.txt")
+    assert tokeniser.vocab == vocab
+    assert tokeniser.merges == merges
+    os.remove("temp_vocab.json")
+    os.remove("temp_merges.txt")

@@ -1,8 +1,9 @@
 cs336_spring2024_assignment1_basics.pdf
-README.md
-writeup.md
+writeup*
 cs336_basics.egg-info/
 data/
 .*
 **/__pycache__/
 profile_output*
+setup.md
+*.log
