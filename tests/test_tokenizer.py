@@ -14,7 +14,7 @@ import tiktoken
 
 from .adapters import get_tokenizer
 from .common import FIXTURES_PATH, gpt2_bytes_to_unicode
-from cs336_basics.utils import save_bpe, load_bpe
+from cs336_basics.utils.data import save_bpe, load_bpe
 
 VOCAB_PATH = FIXTURES_PATH / "gpt2_vocab.json"
 MERGES_PATH = FIXTURES_PATH / "gpt2_merges.txt"

@@ -4,12 +4,16 @@ from __future__ import annotations
 import os
 from typing import IO, BinaryIO, Iterable, Optional, Type
 
+import numpy as np
 import numpy.typing as npt
 import torch
 
 import cs336_basics.tokeniser as tokeniser
 import cs336_basics.model as model
 import cs336_basics.train_bpe as train_bpe
+import cs336_basics.utils.nn as nn
+import cs336_basics.optimiser as optimiser
+import cs336_basics.utils.data as data
 
 
 def run_positionwise_feedforward(
@@ -368,7 +372,7 @@ def run_gelu(in_features: torch.FloatTensor) -> torch.FloatTensor:
 
 
 def run_get_batch(
-    dataset: npt.NDArray, batch_size: int, context_length: int, device: str
+    dataset: np.ndarray, batch_size: int, context_length: int, device: str
 ) -> tuple[torch.Tensor, torch.Tensor]:
     """
     Given a dataset (a 1D numpy array of integers) and a desired batch size and
@@ -391,8 +395,7 @@ def run_get_batch(
         is the sampled input sequences, and the second tuple item is the corresponding
         language modeling labels.
     """
-    raise NotImplementedError
-
+    return data.get_batch(dataset, batch_size, context_length, device)
 
 def run_softmax(in_features: torch.FloatTensor, dim: int) -> torch.FloatTensor:
     """Given a tensor of inputs, return the output of softmaxing the given `dim`
@@ -426,29 +429,29 @@ def run_cross_entropy(inputs: torch.FloatTensor, targets: torch.LongTensor):
     Returns:
         Tensor of shape () with the average cross-entropy loss across examples.
     """
-    raise NotImplementedError
+    return nn.cross_entropy(inputs, targets)
 
 
 def run_gradient_clipping(parameters: Iterable[torch.nn.Parameter], max_l2_norm: float):
-    """Given a set of parameters, clip their combined gradients to have l2 norm at most max_l2_norm.
+    """given a set of parameters, clip their combined gradients to have l2 norm at most max_l2_norm.
 
-    Args:
+    args:
         parameters: collection of trainable parameters.
         max_l2_norm: a positive value containing the maximum l2-norm.
 
-    The gradients of the parameters (parameter.grad) should be modified in-place.
+    the gradients of the parameters (parameter.grad) should be modified in-place.
 
-    Returns:
-        None
+    returns:
+        none
     """
-    raise NotImplementedError
+    return nn.gradient_clipping(parameters, max_l2_norm)
 
 
 def get_adamw_cls() -> Type[torch.optim.Optimizer]:
     """
     Returns a torch.optim.Optimizer that implements AdamW.
     """
-    raise NotImplementedError
+    return optimiser.AdamW
 
 
 def run_get_lr_cosine_schedule(
@@ -481,7 +484,7 @@ def run_get_lr_cosine_schedule(
     Returns:
         Learning rate at the given iteration under the specified schedule.
     """
-    raise NotImplementedError
+    return optimiser.learning_rate_schedule(it, max_learning_rate, min_learning_rate, warmup_iters, cosine_cycle_iters)
 
 
 def run_save_checkpoint(
@@ -504,7 +507,7 @@ def run_save_checkpoint(
         out: str | os.PathLike | BinaryIO | IO[bytes]
             Path or file-like object to serialize the model, optimizer, and iteration to.
     """
-    raise NotImplementedError
+    return data.save_checkpoint(model, optimizer, iteration, out)
 
 
 def run_load_checkpoint(
@@ -528,7 +531,7 @@ def run_load_checkpoint(
     Returns:
         int, the previously-serialized number of iterations.
     """
-    raise NotImplementedError
+    return data.load_checkpoint(src, model, optimizer)
 
 
 def get_tokenizer(

@@ -2,6 +2,8 @@ from typing import Optional
 import torch
 import torch.nn as nn
 
+from cs336_basics.utils.nn import GELU, softmax
+
 
 class RMSNorm(nn.Module):
     """Applies Root mean Square Layer Normalisation over a mini-batch of inputs.
@@ -28,7 +30,7 @@ class RMSNorm(nn.Module):
 
 
     def forward(self, a: torch.Tensor) -> torch.Tensor:
-        rms = (torch.sum(a ** 2, dim=-1, keepdim=True) / self.d_model + self.eps) ** 0.5
+        rms = torch.sqrt(torch.sum(a ** 2, dim=-1, keepdim=True) / self.d_model + self.eps)
         return a / rms * self.weight.view(1, 1, -1)
 
 
@@ -53,39 +55,6 @@ class PositionWiseFeedForward(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.w2(GELU(self.w1(x)))
-
-
-def GELU(x: torch.Tensor) -> torch.Tensor:
-    """Given a tensor of inputs, return the output of applying GELU
-    to each element.
-
-    Args:
-        in_features: torch.FloatTensor
-            Input features to run GELU on. Shape is arbitrary.
-
-    Returns:
-        FloatTensor of with the same shape as `in_features` with the output of applying
-        GELU to each element.
-    """
-    return 0.5 * x * (1 + torch.erf(x / (torch.Tensor([2]) ** 0.5)))
-
-
-def softmax(x: torch.Tensor, dim: int) -> torch.Tensor:
-    """Given a tensor of inputs, return the output of softmaxing the given `dim`
-    of the input.
-
-    Args:
-        in_features: torch.FloatTensor
-            Input features to softmax. Shape is arbitrary.
-        dim: int
-            Dimension of the `in_features` to apply softmax to.
-
-    Returns:
-        FloatTensor of with the same shape as `in_features` with the output of
-        softmax normalizing the specified `dim`.
-    """
-    exp_x = torch.exp(x - torch.max(x, dim=dim, keepdim=True).values)
-    return exp_x / exp_x.sum(dim=dim, keepdim=True) 
 
 
 def scaled_dot_product_attention(

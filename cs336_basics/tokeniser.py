@@ -2,7 +2,7 @@ import json
 from typing import Iterable, Iterator, Optional
 import regex as re
 
-from cs336_basics.utils import save_bpe, load_bpe
+from cs336_basics.utils.data import save_bpe, load_bpe
 from cs336_basics.train_bpe import train_bpe 
 
 gpt2_pretokeniser = re.compile(r"""'(?:[sdmt]|ll|ve|re)| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+""")
