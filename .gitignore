@@ -1,9 +1,13 @@
 cs336_spring2024_assignment1_basics.pdf
-writeup*
+writeup.md
+tokeniser.ipynb
 cs336_basics.egg-info/
 data/
-.*
+**/.*
 **/__pycache__/
 profile_output*
 setup.md
-*.log
+log/
+wandb/
+TODO
+tokenisers/

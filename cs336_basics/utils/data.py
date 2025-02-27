@@ -66,11 +66,11 @@ def save_bpe(
         merges_path: str | os.PathLike,
 ):
     """
-    Given a trained BPE tokenizer's vocabulary and merges, save them to disk in human-readable format.
+    Given a trained BPE tokeniser's vocabulary and merges, save them to disk in human-readable format.
 
     Args:
         vocab: dict[int, bytes]
-            The trained tokenizer vocabulary, a mapping from int (token ID in the vocabulary)
+            The trained tokeniser vocabulary, a mapping from int (token ID in the vocabulary)
             to bytes (token bytes)
         merges: list[tuple[bytes, bytes]]
             BPE merges. Each list item is a tuple of bytes (<token1>, <token2>),
@@ -110,7 +110,7 @@ def load_bpe(
     merges_filepath: str | os.PathLike,
 ) -> tuple[dict[int, bytes], list[tuple[bytes, bytes]]]:
     """
-    Load a trained BPE tokenizer's vocabulary and merges from disk.
+    Load a trained BPE tokeniser's vocabulary and merges from disk.
 
     Args:
         vocab_filepath: str | os.PathLike

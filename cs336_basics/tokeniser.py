@@ -1,11 +1,12 @@
-import json
+import os
 from typing import Iterable, Iterator, Optional
+import numpy as np
 import regex as re
 
-from cs336_basics.utils.data import save_bpe, load_bpe
-from cs336_basics.train_bpe import train_bpe 
+from cs336_basics.utils.data import load_bpe
 
 gpt2_pretokeniser = re.compile(r"""'(?:[sdmt]|ll|ve|re)| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+""")
+
 
 class Tokeniser():
     """
@@ -172,3 +173,40 @@ class Tokeniser():
         for id in ids:
             text += self.vocab[id]
         return text.decode("utf-8", errors="replace")
+
+
+    def encode_to_disk(self,
+        input_path: str | os.PathLike,
+        output_path: str | os.PathLike,
+        initial_size: int = 2 ** 19, # 1 MB of np.uint16 tokens (2 bytes each)
+    ) -> None:
+        """
+        Encodes the input text file to a binary file of token IDs and saves it to disk as a numpy array of uint16s.
+        Args:
+            input_path (str | os.PathLike): Path to the input text file to be tokenised.
+            output_path (str | os.PathLike): Path to the output binary file where token IDs will be saved.
+            initial_size (int, optional): Initial size of the memmap array. Defaults to 2**19 (1 MB of np.uint16 tokens).
+        This method reads the input text file, tokenises its content, and writes the token IDs to a memmap array.
+        If the array reaches its capacity, it is doubled in size. Once all tokens are processed, the
+        memmap array is resized to the actual number of tokens.
+        """
+        
+        fp = np.memmap(output_path, dtype=np.uint16, mode="w+", shape=(initial_size,))
+        token_count = 0
+
+        # read the input file and tokenise, reading the output one token at a time
+        with open(input_path, "r") as f:
+            for token in self.encode_iterable(f):
+
+                # create larger array if needed
+                if token_count == len(fp):
+                    fp = np.memmap(output_path, dtype=np.uint16, mode="r+", shape=(len(fp) * 2,))
+
+                # write token IDs to the memmap array
+                fp[token_count] = token
+                fp.flush()
+                token_count += 1
+        
+        # resize the memmap array to the actual number of tokens
+        fp = np.memmap(output_path, dtype=np.uint16, mode="r+", shape=(token_count,))
+        fp.flush()

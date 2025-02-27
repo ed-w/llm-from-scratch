@@ -8,11 +8,12 @@ import logging
 import line_profiler
 import memory_profiler
 
+
 gpt2_pretokeniser = re.compile(r"""'(?:[sdmt]|ll|ve|re)| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+""")
 
 # set up time profilling
 logging.basicConfig(
-    filename="train_bpe.log",
+    filename="log/train_bpe.log",
     level=logging.INFO,
     format="%(asctime)s - %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
